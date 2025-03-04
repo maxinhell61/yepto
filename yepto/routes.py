@@ -8,7 +8,7 @@ from .models import db, Product, Category, Cart, CartItem, Order, Payment, Order
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/products', methods=['GET'])
+@app.route('/products', methods=['GET'])
 def get_products():
     category = request.args.get('category')
     search = request.args.get('search')
@@ -25,7 +25,7 @@ def get_products():
         for p in products
     ]})
 
-@app.route('/api/categories', methods=['GET'])
+@app.route('/categories', methods=['GET'])
 def get_categories():
     categories = Category.query.all()
     return jsonify({'categories': [cat.name for cat in categories]})
@@ -63,7 +63,7 @@ def add_item_to_cart():
     db.session.commit()
     return jsonify({"message": "Item added to cart"}), 201
 
-@app.route('/api/cart', methods=['POST'])
+@app.route('/cart', methods=['POST'])
 @jwt_required()
 def add_to_cart():
     user_id = get_jwt_identity()
@@ -102,7 +102,7 @@ def add_to_cart():
         db.session.rollback()
         return jsonify({"error": "Failed to update cart"}), 500
 
-@app.route('/api/cart-summary', methods=['GET'])
+@app.route('/cart-summary', methods=['GET'])
 @jwt_required()
 def get_cart_summary():
     user_id = get_jwt_identity()
@@ -110,7 +110,7 @@ def get_cart_summary():
     total_price = sum(item.product.price * item.quantity for item in cart_items)
     return jsonify({'total_items': len(cart_items), 'total_price': total_price})
 
-@app.route('/api/dashboard', methods=['GET'])
+@app.route('/', methods=['GET'])
 def get_dashboard():
     categories = Category.query.all()
     products = Product.query.limit(10).all()
@@ -143,7 +143,7 @@ def return_order(order_id):
     db.session.commit()
     return jsonify({"message": "Order returned successfully"})
 
-@app.route('/api/checkout', methods=['POST'])
+@app.route('/checkout', methods=['POST'])
 @jwt_required()
 def create_order():
     user_id = get_jwt_identity()
