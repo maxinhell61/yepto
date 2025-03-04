@@ -5,7 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model):  # User model for managing user accounts
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -22,7 +23,8 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-class Product(db.Model):
+class Product(db.Model):  # Product model for managing products
+
     __tablename__ = 'product'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, index=True)
@@ -48,18 +50,21 @@ class Product(db.Model):
 #     price_modifier = db.Column(db.Float, default=0.0)
 #     stock = db.Column(db.Integer, nullable=False)
 
-class Category(db.Model):
+class Category(db.Model):  # Category model for managing product categories
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
 
-class Wishlist(db.Model):
+class Wishlist(db.Model):  # Wishlist model for managing user wishlists
+
     __tablename__ = 'wishlist'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Review(db.Model):
+class Review(db.Model):  # Review model for managing product reviews
+
     __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -68,7 +73,8 @@ class Review(db.Model):
     comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Discount(db.Model):
+class Discount(db.Model):  # Discount model for managing discount codes
+
     __tablename__ = 'discount'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(50), unique=True, nullable=False)
@@ -79,14 +85,16 @@ class Discount(db.Model):
     max_uses = db.Column(db.Integer, nullable=True)
     used_count = db.Column(db.Integer, default=0)
 
-class Cart(db.Model):
+class Cart(db.Model):  # Cart model for managing user shopping carts
+
     __tablename__ = 'cart'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     items = db.relationship('CartItem', backref='cart', cascade='all, delete-orphan')  
     discount_id = db.Column(db.Integer, db.ForeignKey('discount.id'), nullable=True)
 
-class CartItem(db.Model):
+class CartItem(db.Model):  # CartItem model for managing items in the cart
+
     __tablename__ = 'cart_item'
     id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
@@ -98,7 +106,8 @@ class OrderStatus(Enum):
     COMPLETED = 'completed'
     CANCELLED = 'cancelled'
 
-class Order(db.Model):
+class Order(db.Model):  # Order model for managing user orders
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     total = db.Column(db.Float, nullable=False)
@@ -107,7 +116,8 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     items = db.relationship('OrderItem', backref='order', cascade='all, delete-orphan')
 
-class OrderItem(db.Model):
+class OrderItem(db.Model):  # OrderItem model for managing items in an order
+
     __tablename__ = 'order_item'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
@@ -115,7 +125,8 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)  # Price at time of purchase
 
-class Payment(db.Model):
+class Payment(db.Model):  # Payment model for managing payments
+
     __tablename__ = 'payment'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
@@ -125,7 +136,8 @@ class Payment(db.Model):
     transaction_id = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Analytics(db.Model):
+class Analytics(db.Model):  # Analytics model for tracking user interactions
+
     __tablename__ = 'analytics'
     id = db.Column(db.Integer, primary_key=True)
     event_type = db.Column(db.String(50), nullable=False)  # e.g., 'product_view', 'purchase'
@@ -133,7 +145,8 @@ class Analytics(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class AuditLog(db.Model):
+class AuditLog(db.Model):  # AuditLog model for tracking admin actions
+
     id = db.Column(db.Integer, primary_key=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     action = db.Column(db.String(100))

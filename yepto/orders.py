@@ -25,13 +25,14 @@ def return_order(order_id):
     # Restore stock
     for item in order.items:
         product = Product.query.get(item.product_id)
-        if product: #
+        if product:
             product.stock += item.quantity
     
     order.return_status = 'returned'
     
-    
+    db.session.commit()  # Commit the session after updating the order
     return jsonify({"message": "Order returned successfully"})
+
 
 
 
