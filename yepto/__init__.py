@@ -6,26 +6,35 @@ from flask_cors import CORS
 from yepto.config import Config
 from yepto.models import db
 
-
-app = Flask(__name__)
-app.config.from_object(Config)
-
-db.init_app(app)
-Migrate(app, db)
-JWTManager(app)
-CORS(app)
-
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    db.init_app(app)
+    Migrate(app, db)
+    JWTManager(app)
+    CORS(app)
+    return app
 
 
+# app = Flask(__name__)
+# app.config.from_object(Config)
+
+# db.init_app(app)
+# Migrate(app, db)
+# JWTManager(app)
+# CORS(app)
+
+
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
 
 
 
 
-# git status
+
+
+git status
 git add yepto/
 git add .
 git commit -m "Updated complete yepto folder"

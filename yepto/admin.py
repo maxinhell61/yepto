@@ -13,7 +13,6 @@ from .models import db, Product, Category, Cart, CartItem, Order, Payment, Order
 app = Flask(__name__)
 CORS(app)
 
-admin = Blueprint("admin", __name__)
 
 def admin_required(fn):
     @wraps(fn)  # Preserve function metadata
@@ -26,7 +25,7 @@ def admin_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
-@admin.route('/api/admin/orders', methods=['GET'])
+@app.route('/admin/orders', methods=['GET'])
 @admin_required
 def get_all_orders():
     page = request.args.get('page', 1, type=int)
@@ -41,7 +40,7 @@ def get_all_orders():
         "created_at": order.created_at.isoformat()
     } for order in orders])
 
-@admin.route('/api/admin/orders/<int:order_id>', methods=['PUT'])
+@app.route('/admin/orders/<int:order_id>', methods=['PUT'])
 @admin_required
 def update_order_status(order_id):
 
@@ -60,53 +59,30 @@ def update_order_status(order_id):
     
     return jsonify({"message": "Order updated"}) 
 
-
-
-# @app.route('/api/orders/<int:order_id>/cancel', methods=['POST'])
-# @jwt_required()
-# def cancel_order(order_id):
-#     user_id = get_jwt_identity()
-#     order = Order.query.filter_by(id=order_id, user_id=user_id).first()
-#     if not order:
-#         return jsonify({"error": "Order not found"}), 404
-
-#     if order.status not in [OrderStatus.PENDING.value, OrderStatus.COMPLETED.value]:
-#         return jsonify({"error": "Order cannot be cancelled"}), 400
-
-#     # Restore stock
-#     for item in order.items:
-#         product = Product.query.get(item.product_id)
-#         if product:
-#             product.stock += item.quantity
-
-#     order.status = OrderStatus.CANCELLED.value  # Ensure proper Enum usage
-#     db.session.commit()
-
-#     return jsonify({"message": "Order cancelled successfully"}), 200
+ 
 
 
 
-
-@admin.route('/admin/dashboard/sales', methods=['GET'])
+@app.route('/admin/dashboard/sales', methods=['GET'])
 @admin_required
 def get_sales_report():
     total_sales = db.session.query(db.func.sum(Order.total)).filter(Order.status == 'completed').scalar() or 0
     return jsonify({"total_sales": total_sales})
 
-@admin.route('/admin/dashboard/orders', methods=['GET'])
+@app.route('/admin/dashboard/orders', methods=['GET'])
 @admin_required
 def get_order_count():
     total_orders = Order.query.count()
     return jsonify({"total_orders": total_orders})
 
-@admin.route('/admin/dashboard/users', methods=['GET'])
+@app.route('/admin/dashboard/users', methods=['GET'])
 @admin_required
 def get_user_count():
     total_users = User.query.count()
     return jsonify({"total_users": total_users})
 
 
-@admin.route('/admin/users', methods=['GET'])
+@app.route('/admin/users', methods=['GET'])
 @admin_required
 def get_all_users():
     users = User.query.all()
@@ -116,7 +92,7 @@ def get_all_users():
         "is_admin": user.is_admin
     } for user in users])
 
-@admin.route('/admin/users/<int:user_id>/promote', methods=['POST'])
+@app.route('/admin/users/<int:user_id>/promote', methods=['POST'])
 @admin_required
 def promote_user(user_id):
     user = User.query.get(user_id)
@@ -127,7 +103,7 @@ def promote_user(user_id):
     
     return jsonify({"message": f"User  {user_id} promoted to admin"})
 
-@admin.route('/admin/users/<int:user_id>/deactivate', methods=['POST'])
+@app.route('/admin/users/<int:user_id>/deactivate', methods=['POST'])
 @admin_required
 def deactivate_user(user_id):
     user = User.query.get(user_id)
