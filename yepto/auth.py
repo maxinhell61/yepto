@@ -1,11 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from .models import db, User,Cart
 
-auth = Blueprint("auth", __name__)
+app = Flask(__name__)
 
-@auth.route('/api/auth/register', methods=['POST'])
+
+@app.route('/auth/register', methods=['POST'])
 def register():
     data = request.get_json()
     if not data or 'email' not in data or 'password' not in data or 'username' not in data:
@@ -35,7 +36,7 @@ def register():
         return jsonify({"error": "Registration failed"}), 500
 
 
-@auth.route("/login", methods=["POST"])
+@app.route("/auth/login", methods=["POST"])
 def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
@@ -52,7 +53,7 @@ def login():
 revoked_tokens = set()
 
 
-@auth.route('/logout', methods=['POST'])
+@app.route('/auth/logout', methods=['POST'])
 @jwt_required()
 def logout_user():
     jti = get_jwt()['jti']

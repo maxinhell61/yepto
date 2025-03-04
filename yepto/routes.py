@@ -8,10 +8,7 @@ from .models import db, Product, Category, Cart, CartItem, Order, Payment, Order
 app = Flask(__name__)
 CORS(app)
 
-routes = Blueprint("routes", __name__)
-orders = Blueprint("orders", __name__)
-
-@orders.route('/api/products', methods=['GET'])
+@app.route('/api/products', methods=['GET'])
 def get_products():
     category = request.args.get('category')
     search = request.args.get('search')
@@ -28,12 +25,12 @@ def get_products():
         for p in products
     ]})
 
-@orders.route('/api/categories', methods=['GET'])
+@app.route('/api/categories', methods=['GET'])
 def get_categories():
     categories = Category.query.all()
     return jsonify({'categories': [cat.name for cat in categories]})
 
-@orders.route('/cart/items', methods=['GET'])
+@app.route('/cart/items', methods=['GET'])
 @jwt_required()
 def get_cart_items():
     user_id = get_jwt_identity()
@@ -47,7 +44,7 @@ def get_cart_items():
         "quantity": item.quantity
     } for item in cart.items]), 200
 
-@orders.route('/cart/items', methods=['POST'])
+@app.route('/cart/items', methods=['POST'])
 @jwt_required()
 def add_item_to_cart():
     user_id = get_jwt_identity()
@@ -66,7 +63,7 @@ def add_item_to_cart():
     db.session.commit()
     return jsonify({"message": "Item added to cart"}), 201
 
-@orders.route('/api/cart', methods=['POST'])
+@app.route('/api/cart', methods=['POST'])
 @jwt_required()
 def add_to_cart():
     user_id = get_jwt_identity()
@@ -105,7 +102,7 @@ def add_to_cart():
         db.session.rollback()
         return jsonify({"error": "Failed to update cart"}), 500
 
-@orders.route('/api/cart-summary', methods=['GET'])
+@app.route('/api/cart-summary', methods=['GET'])
 @jwt_required()
 def get_cart_summary():
     user_id = get_jwt_identity()
@@ -122,13 +119,6 @@ def get_dashboard():
         'featured_products': [{'id': p.id, 'name': p.name, 'price': p.price} for p in products]
     })
 
-# @app.route('/', methods=['GET'])
-# def home():
-#     return redirect(url_for('orders.get_dashboard'))  # Redirect to the correct dashboard endpoint
-
-# @app.route('/login', methods=['GET'])
-# def login():
-#     return "Login Page"  # Replace with actual login page rendering
 
 @jwt_required()
 def return_order(order_id):
@@ -153,7 +143,7 @@ def return_order(order_id):
     db.session.commit()
     return jsonify({"message": "Order returned successfully"})
 
-@orders.route('/api/checkout', methods=['POST'])
+@app.route('/api/checkout', methods=['POST'])
 @jwt_required()
 def create_order():
     user_id = get_jwt_identity()
@@ -197,7 +187,7 @@ def create_order():
         db.session.rollback()
         return jsonify({"error": f"Checkout failed: {str(e)}"}), 500
 
-@orders.route('/api/orders/<int:order_id>/cancel', methods=['POST'])
+@app.route('/orders/<int:order_id>/cancel', methods=['POST'])
 @jwt_required()
 def cancel_order(order_id):
     user_id = get_jwt_identity()

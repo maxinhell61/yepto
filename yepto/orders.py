@@ -1,12 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Flask,Blueprint, request, jsonify
 from sqlalchemy import select
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, Order, OrderItem, Cart, CartItem, Product, Payment
 from datetime import datetime
 
-orders = Blueprint("orders", __name__)
+app = Flask(__name__)
 
-@orders.route('/api/orders/<int:order_id>/return', methods=['POST'])
+@app.route('/api/orders/<int:order_id>/return', methods=['POST'])
 @jwt_required()
 def return_order(order_id):
     user_id = get_jwt_identity()
@@ -37,7 +37,7 @@ def return_order(order_id):
 
 
 
-@orders.route("/checkout", methods=["POST"])
+@app.route("/checkout", methods=["POST"])
 @jwt_required()
 def create_order():
     user_id = get_jwt_identity()
@@ -79,7 +79,7 @@ def create_order():
         db.session.rollback()
         return jsonify({"error": f"Checkout failed: {str(e)}"}), 500
 
-@orders.route("/payments/process", methods=["POST"])
+@app.route("/payments/process", methods=["POST"])
 @jwt_required()
 def process_payment():
     data = request.get_json()
@@ -118,7 +118,7 @@ def process_payment():
 
 
 
-@orders.route('/payments/create', methods=['POST'])
+@app.route('/payments/create', methods=['POST'])
 @jwt_required()
 def initialize_payment():
     user_id = get_jwt_identity()
